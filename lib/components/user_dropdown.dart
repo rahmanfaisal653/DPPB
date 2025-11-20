@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../user_pages/bookmark_page.dart';
 import '../user_pages/notification_page.dart';
 import '../user_pages/settings_page.dart';
+import '../user_pages/statistic_page.dart';
 
 class UserDropdownButton extends StatelessWidget {
   const UserDropdownButton({super.key});
@@ -17,19 +18,31 @@ class UserDropdownButton extends StatelessWidget {
           items: const [
             PopupMenuItem(value: "bookmark", child: Text("Bookmark")),
             PopupMenuItem(value: "notification", child: Text("Notifikasi")),
+            PopupMenuItem(value: "statistic", child: Text("Statistik")),
             PopupMenuItem(value: "settings", child: Text("Settings")),
           ],
         );
 
         if (result == "bookmark") {
-          Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const BookmarkPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BookmarkPage()),
+          );
         } else if (result == "notification") {
-          Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const NotificationsPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationPage()),
+          );
+        } else if (result == "statistic") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const StatisticPage()),
+          );
         } else if (result == "settings") {
-          Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SettingsPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsPage()),
+          );
         }
       },
     );
