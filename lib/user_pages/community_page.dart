@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'community_detail_page.dart';
 import 'create_community_page.dart';
+import '../components/user_dropdown.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -31,10 +32,13 @@ class _CommunityPageState extends State<CommunityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Komunitas'),
+       appBar: AppBar(
+        title: const Text("Komunitas saya"),
+        backgroundColor: Colors.blue,
+        actions: const [
+        UserDropdownButton(),
+        ],
       ),
-
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: komunitas.length,

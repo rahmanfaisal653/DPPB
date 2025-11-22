@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/user_dropdown.dart';
 
 class CommunityDetailPage extends StatefulWidget {
   final String nama;
@@ -29,7 +30,11 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.nama),
+        title: const Text("Detail Komunitas"),
+        backgroundColor: Colors.blue,
+        actions: const [
+        UserDropdownButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),

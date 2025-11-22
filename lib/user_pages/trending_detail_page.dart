@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/user_dropdown.dart';
 
 class TrendingDetailPage extends StatelessWidget {
   final String judul;
@@ -21,8 +22,12 @@ class TrendingDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Postingan'),
+       appBar: AppBar(
+        title: const Text("Detail postingan"),
+        backgroundColor: Colors.blue,
+        actions: const [
+        UserDropdownButton(),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
