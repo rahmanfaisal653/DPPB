@@ -4,54 +4,16 @@ import '../user_pages/notification_page.dart';
 import '../user_pages/settings_page.dart';
 import '../user_pages/statistic_page.dart';
 
+
 class UserDropdownButton extends StatelessWidget {
   const UserDropdownButton({super.key});
-
-  void bukaHalaman(BuildContext context, String pilihan) {
-    if (pilihan == "bookmark") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return BookmarkPage();
-          },
-        ),
-      );
-    } else if (pilihan == "notification") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return NotificationPage();
-          },
-        ),
-      );
-    } else if (pilihan == "statistic") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return StatisticPage();
-          },
-        ),
-      );
-    } else if (pilihan == "settings") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return SettingsPage();
-          },
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.person, size: 28),
+      icon: Icon(Icons.person),
       onPressed: () {
+        // Tampilkan menu popup
         showMenu(
           context: context,
           position: RelativeRect.fromLTRB(1000, 80, 16, 0),
@@ -61,9 +23,32 @@ class UserDropdownButton extends StatelessWidget {
             PopupMenuItem(value: "statistic", child: Text("Statistik")),
             PopupMenuItem(value: "settings", child: Text("Settings")),
           ],
-        ).then((pilihan) {
-          if (pilihan != null) {
-            bukaHalaman(context, pilihan);
+        ).then((hasilPilihan) {
+
+          if (!context.mounted) return; 
+          
+          if (hasilPilihan != null) {
+            if (hasilPilihan == "bookmark") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BookmarkPage()),
+              );
+            } else if (hasilPilihan == "notification") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationPage()),
+              );
+            } else if (hasilPilihan == "statistic") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => StatisticPage()),
+              );
+            } else if (hasilPilihan == "settings") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            }
           }
         });
       },

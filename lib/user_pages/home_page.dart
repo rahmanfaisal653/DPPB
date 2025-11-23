@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import '../models/post_data.dart';
+import '../components/user_dropdown.dart';
+
+// List global untuk menyimpan semua postingan
+List<String> semuaPostingan = [
+  "Cara belajar cepat tanpa overthinking 🎯",
+  "Belajar Flutter itu seru banget 🚀",
+  "Laravel adalah teman terbaik backend dev 🧠",
+];
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,9 +22,12 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Eduvoria — Home"),
         backgroundColor: Colors.blue,
+        actions: [
+        UserDropdownButton(),
+        ],
       ),
       body: ListView.builder(
-        itemCount: PostData.allPosts.length,
+        itemCount: semuaPostingan.length,
         itemBuilder: (context, index) {
           return Container(
             margin: EdgeInsets.all(10),
@@ -30,7 +40,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(PostData.allPosts[index], style: TextStyle(fontSize: 16)),
+                Text(semuaPostingan[index], style: TextStyle(fontSize: 16)),
                 SizedBox(height: 10),
                 Row(
                   children: [
