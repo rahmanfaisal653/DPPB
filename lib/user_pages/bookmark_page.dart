@@ -1,55 +1,55 @@
 import 'package:flutter/material.dart';
-import '../components/user_dropdown.dart';
+import '../models/post_data.dart';
 
 class BookmarkPage extends StatelessWidget {
   const BookmarkPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<String> bookmarks = [
-      "Tips Belajar Efektif 🎯",
-      "Cara membuat UI Flutter seperti Laravel",
-      "Belajar Backend Laravel Dasar",
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Bookmark"),
-        backgroundColor: Colors.teal,
-        actions: const [
-          UserDropdownButton(), // wajib
-        ],
-      ),
-
-      body: Column(
-        children: [
-          // SEARCH BAR
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Cari Bookmark...",
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
+      appBar: AppBar(title: Text("Bookmark"), backgroundColor: Colors.teal),
+      body: ListView.builder(
+        itemCount: PostData.allPosts.length,
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.all(10),
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)],
             ),
-          ),
-
-          // LIST BOOKMARK
-          Expanded(
-            child: ListView.builder(
-              itemCount: bookmarks.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: const Icon(Icons.bookmark),
-                  title: Text(bookmarks[index]),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                );
-              },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.bookmark, color: Colors.teal),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        PostData.allPosts[index],
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.favorite_border, color: Colors.red),
+                    SizedBox(width: 5),
+                    Text("Like"),
+                    SizedBox(width: 20),
+                    Icon(Icons.comment, color: Colors.grey),
+                    SizedBox(width: 5),
+                    Text("Komentar"),
+                  ],
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
