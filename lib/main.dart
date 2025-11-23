@@ -17,28 +17,30 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int currentIndex = 0;
+  int halamanSekarang = 0;
 
-  final pages = [
+  List<Widget> daftarHalaman = [
     HomePage(),
-    const TrendingPage(),
-    const CommunityPage(),
+    TrendingPage(),
+    CommunityPage(),
     ProfilePage(),
   ];
+
+  void gantiHalaman(int index) {
+    setState(() {
+      halamanSekarang = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: pages[currentIndex],
+        body: daftarHalaman[halamanSekarang],
         bottomNavigationBar: EduvoriaNavbar(
-          currentIndex: currentIndex,
-          onTap: (index) {
-            setState(() {
-              currentIndex = index;
-            });
-          },
+          indexSekarang: halamanSekarang,
+          ketikaDiTekan: gantiHalaman,
         ),
       ),
     );

@@ -1,188 +1,154 @@
 import 'package:flutter/material.dart';
-import '../components/user_dropdown.dart';
+import '../models/post_data.dart';
+import 'add_post_page.dart';
 
-class ProfilePage extends StatelessWidget {
-  ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
-  final List<Map<String, String>> userPosts = [
-    {
-      "title": "Postingan saya tentang Flutter 🎨",
-      "image":
-          "https://images.unsplash.com/photo-1517433456452-f9633a875f6f"
-    },
-    {
-      "title": "Belajar desain UI modern ✨",
-      "image":
-          "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
-    },
-  ];
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  void bukaHalamanTambahPost() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return AddPostPage();
+        },
+      ),
+    ).then((value) {
+      if (value == true) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profil Saya"),
-        backgroundColor: Colors.blue,
-        actions: const [
-          UserDropdownButton(),
-        ],
-      ),
-
+      appBar: AppBar(title: Text("Profil Saya"), backgroundColor: Colors.blue),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 20),
-
-            // ============================
-            //  FOTO PROFIL + NAMA + BIO
-            // ============================
-            const CircleAvatar(
-              radius: 55,
+            SizedBox(height: 20),
+            CircleAvatar(
+              radius: 50,
               backgroundImage: NetworkImage("https://i.pravatar.cc/300"),
             ),
-
-            const SizedBox(height: 15),
-
-            const Text(
+            SizedBox(height: 10),
+            Text(
               "Arthur Pendragon",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-
-            const Text(
-              "@arthur",
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Text("@arthur", style: TextStyle(color: Colors.grey)),
+            SizedBox(height: 10),
+            Text(
+              "Pembelajar yang suka berbagi 🔥",
+              textAlign: TextAlign.center,
             ),
+            SizedBox(height: 20),
 
-            const SizedBox(height: 10),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "Pembelajar yang suka berbagi dan bertumbuh bersama komunitas Eduvoria. 🔥",
-                textAlign: TextAlign.center,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ============================
-            //       STATISTIK MEDSOS
-            // ============================
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                ProfileStat(label: "Posting", value: "2"),
-                ProfileStat(label: "Followers", value: "150"),
-                ProfileStat(label: "Following", value: "89"),
-                ProfileStat(label: "Komunitas", value: "5"),
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      "${PostData.userPosts.length}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text("Posting"),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      "150",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text("Followers"),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      "89",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text("Following"),
+                  ],
+                ),
               ],
             ),
-
-            const SizedBox(height: 20),
-            const Divider(thickness: 1),
-
-            // ============================
-            //     POSTINGAN USER
-            // ============================
-            const SizedBox(height: 15),
-            const Text(
+            SizedBox(height: 20),
+            Divider(),
+            SizedBox(height: 15),
+            Text(
               "Postingan Saya",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 15),
 
             ListView.builder(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: userPosts.length,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: PostData.userPosts.length,
               itemBuilder: (context, index) {
-                final post = userPosts[index];
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 20),
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                return Container(
+                  margin: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // FOTO POST
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
-                        child: Image.network(
-                          post["image"]!,
-                          height: 180,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                      Text(
+                        PostData.userPosts[index],
+                        style: TextStyle(fontSize: 16),
                       ),
-
-                      // JUDUL
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          post["title"]!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-
-                      // LIKE + KOMEN
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(children: const [
-                              Icon(Icons.favorite_border, color: Colors.red),
-                              SizedBox(width: 6),
-                              Text("Like"),
-                            ]),
-                            Row(children: const [
-                              Icon(Icons.comment_outlined, color: Colors.grey),
-                              SizedBox(width: 6),
-                              Text("Komentar"),
-                            ]),
-                          ],
-                        ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.favorite_border, color: Colors.red),
+                          SizedBox(width: 5),
+                          Text("Like"),
+                          SizedBox(width: 20),
+                          Icon(Icons.comment, color: Colors.grey),
+                          SizedBox(width: 5),
+                          Text("Komentar"),
+                          SizedBox(width: 20),
+                          Icon(Icons.bookmark_border, color: Colors.blue),
+                          SizedBox(width: 5),
+                          Text("Simpan"),
+                        ],
                       ),
                     ],
                   ),
                 );
               },
-            )
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// ===== KOMPOEN STAT =====
-class ProfileStat extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const ProfileStat({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: Colors.grey)),
-      ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: bukaHalamanTambahPost,
+        backgroundColor: Colors.blue,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
