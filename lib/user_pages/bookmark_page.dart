@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/post_data.dart';
+import 'home_page.dart';
 
 class BookmarkPage extends StatelessWidget {
   const BookmarkPage({super.key});
@@ -9,7 +9,7 @@ class BookmarkPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text("Bookmark"), backgroundColor: Colors.teal),
       body: ListView.builder(
-        itemCount: PostData.allPosts.length,
+        itemCount: semuaPostingan.length,
         itemBuilder: (context, index) {
           return Container(
             margin: EdgeInsets.all(10),
@@ -28,7 +28,7 @@ class BookmarkPage extends StatelessWidget {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        PostData.allPosts[index],
+                        semuaPostingan[index],
                         style: TextStyle(fontSize: 16),
                       ),
                     ),

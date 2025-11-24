@@ -46,8 +46,8 @@ class _AddPostPageState extends State<AddPostPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: kirimPostingan,
-              child: Text("Posting"),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: Text("Posting"),
             ),
           ],
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/post_data.dart';
-import 'add_post_page.dart';
+import '../components/user_dropdown.dart';
+import 'home_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,25 +10,35 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  void bukaHalamanTambahPost() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return AddPostPage();
-        },
-      ),
-    ).then((value) {
-      if (value == true) {
-        setState(() {});
-      }
-    });
+  // List untuk menyimpan postingan user
+  List<String> postinganSaya = [
+    "Postingan saya tentang Flutter 🎨",
+    "Belajar desain UI modern ✨",
+  ];
+
+  // Controller untuk TextField
+  TextEditingController kontrolerPostingan = TextEditingController();
+
+  // Fungsi untuk menambah postingan baru
+  void tambahPostingan() {
+    if (kontrolerPostingan.text.isNotEmpty) {
+      setState(() {
+        postinganSaya.insert(0, kontrolerPostingan.text);
+        semuaPostingan.insert(0, kontrolerPostingan.text);
+        kontrolerPostingan.clear();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Profil Saya"), backgroundColor: Colors.blue),
+      appBar: AppBar(title: Text("Profil Saya"), 
+      backgroundColor: Colors.blue,
+      actions: [
+        UserDropdownButton(),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -56,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Column(
                   children: [
                     Text(
-                      "${PostData.userPosts.length}",
+                      "${postinganSaya.length}",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -100,10 +110,36 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 15),
 
+            // TextField untuk menambah postingan baru
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: kontrolerPostingan,
+                      decoration: InputDecoration(
+                        hintText: "Tulis postingan...",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: tambahPostingan,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: Text("Posting"),
+                  ),
+                ],
+              ),
+            ),
+
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: PostData.userPosts.length,
+              itemCount: postinganSaya.length,
               itemBuilder: (context, index) {
                 return Container(
                   margin: EdgeInsets.all(10),
@@ -117,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        PostData.userPosts[index],
+                        postinganSaya[index],
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(height: 10),
@@ -143,11 +179,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: bukaHalamanTambahPost,
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.add),
       ),
     );
   }
