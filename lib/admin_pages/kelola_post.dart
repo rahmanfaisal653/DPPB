@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class KelolaPostPage extends StatelessWidget {
-  final List<String> posts;
+  final List<String> posts; 
 
   const KelolaPostPage({super.key, required this.posts});
 

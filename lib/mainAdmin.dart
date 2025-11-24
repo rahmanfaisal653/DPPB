@@ -19,10 +19,29 @@ class AdminApp extends StatefulWidget {
 class _AdminAppState extends State<AdminApp> {
   int currentIndex = 0;
 
-  // ========== DATA ==========
-  List<Map<String, String>> userList = [];
-  List<String> postList = [];
-  List<Map<String, String>> communityList = []; 
+  // ========== DATA (DUMMY + REAL) ==========
+  List<Map<String, String>> userList = [
+    {"username": "admin01", "password": "admin123"},
+    {"username": "user_baru", "password": "password123"},
+  ];
+
+  List<String> postList = [
+    "Selamat datang di platform admin!",
+    "Pengumuman: Update fitur terbaru minggu depan.",
+  ];
+
+  List<Map<String, String>> communityList = [
+    {
+      "title": "Flutter Dev ID",
+      "description": "Komunitas belajar Flutter bersama.",
+      "members": "100"
+    },
+    {
+      "title": "UI/UX Indonesia",
+      "description": "Diskusi dan berbagi seputar design.",
+      "members": "200"
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +59,14 @@ class _AdminAppState extends State<AdminApp> {
                   "username": u,
                   "password": p,
                 });
-                currentIndex = 1;
+                currentIndex = 1; // pindah ke halaman user
               });
             },
 
             onPostSubmit: (post) {
               setState(() {
                 postList.add(post);
-                currentIndex = 2;
+                currentIndex = 2; // pindah ke halaman post
               });
             },
 
@@ -58,13 +77,13 @@ class _AdminAppState extends State<AdminApp> {
                   "description": desc,
                   "members": members,
                 });
-                currentIndex = 3; // pindah ke halaman community
+                currentIndex = 3; // pindah ke halaman komunitas
               });
             },
           ),
 
           // ==========================
-          // KELAS LAIN
+          // HALAMAN LAIN
           // ==========================
           KelolaUserPage(users: userList),
           KelolaPostPage(posts: postList),
@@ -73,7 +92,9 @@ class _AdminAppState extends State<AdminApp> {
 
         bottomNavigationBar: EduvoriaNavbar(
           currentIndex: currentIndex,
-          onTap: (i) => setState(() => currentIndex = i),
+          onTap: (i) {
+            setState(() => currentIndex = i);
+          },
         ),
       ),
     );

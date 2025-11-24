@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 class DashboardPage extends StatefulWidget {
   final Function(String, String) onUserSubmit;
   final Function(String) onPostSubmit;
-  // Callback baru untuk komunitas (Judul, Deskripsi, Anggota)
   final Function(String, String, String) onCommunitySubmit; 
 
   const DashboardPage({
     super.key,
     required this.onUserSubmit,
     required this.onPostSubmit,
-    required this.onCommunitySubmit, // Wajib diisi
+    required this.onCommunitySubmit, 
   });
 
   @override
