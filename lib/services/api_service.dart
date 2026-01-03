@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../models/post_model.dart';
+import '../models/community_model.dart';
 
 // Service untuk handle semua API calls
 class ApiService {
@@ -521,6 +522,201 @@ class ApiService {
       return response.statusCode == 200;
     } catch (e) {
       print('Error delete user: $e');
+      return false;
+    }
+  }
+
+  // ========== COMMUNITY FUNCTIONS ==========
+
+  // GET - Ambil semua community
+  static Future<List<Community>> getAllCommunities() async {
+    try {
+      String? token = await getToken();
+      if (token == null) return [];
+
+      print('GET ALL COMMUNITIES: Fetching from $baseUrl/communities');
+      final response = await http.get(
+        Uri.parse('$baseUrl/communities'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('GET ALL COMMUNITIES: Status = ${response.statusCode}');
+      print('GET ALL COMMUNITIES: Response = ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        var communitiesData = [];
+
+        // Handle different response formats
+        if (jsonData.containsKey('data')) {
+          if (jsonData['data'] is Map && jsonData['data'].containsKey('data')) {
+            communitiesData = jsonData['data']['data'];
+          } else if (jsonData['data'] is List) {
+            communitiesData = jsonData['data'];
+          } else {
+            communitiesData = [];
+          }
+        } else {
+          communitiesData = jsonData;
+        }
+
+        print('GET ALL COMMUNITIES: Jumlah data = ${communitiesData.length}');
+
+        List<Community> communities = communitiesData.map((communityData) {
+          return Community.fromJson(communityData);
+        }).toList();
+
+        print('GET ALL COMMUNITIES: Berhasil parse ${communities.length} communities');
+        return communities;
+      } else {
+        print('GET ALL COMMUNITIES: Error status ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('GET ALL COMMUNITIES Error: $e');
+      return [];
+    }
+  }
+
+  // GET - Ambil detail community berdasarkan ID
+  static Future<Community?> getCommunityById(int communityId) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return null;
+
+      print('GET COMMUNITY: Fetching from $baseUrl/communities/$communityId');
+      final response = await http.get(
+        Uri.parse('$baseUrl/communities/$communityId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('GET COMMUNITY: Status = ${response.statusCode}');
+      print('GET COMMUNITY: Response = ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final communityData = jsonData['data'] ?? jsonData;
+        return Community.fromJson(communityData);
+      } else {
+        print('GET COMMUNITY: Error status ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error get community: $e');
+      return null;
+    }
+  }
+
+  // POST - Create community baru
+  static Future<Community?> createCommunity(
+    String name,
+    String? description,
+    String? category,
+  ) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return null;
+
+      print('CREATE COMMUNITY: Posting to $baseUrl/communities');
+      final response = await http.post(
+        Uri.parse('$baseUrl/communities'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'name': name,
+          'description': description,
+          'category': category,
+        }),
+      );
+
+      print('CREATE COMMUNITY: Status = ${response.statusCode}');
+      print('CREATE COMMUNITY: Response = ${response.body}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final communityData = jsonData['data'] ?? jsonData;
+        return Community.fromJson(communityData);
+      } else {
+        print('CREATE COMMUNITY: Error status ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error create community: $e');
+      return null;
+    }
+  }
+
+  // PUT - Update community
+  static Future<Community?> updateCommunity(
+    int communityId,
+    String name,
+    String? description,
+    String? category,
+  ) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return null;
+
+      print('UPDATE COMMUNITY: Putting to $baseUrl/communities/$communityId');
+      final response = await http.put(
+        Uri.parse('$baseUrl/communities/$communityId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'name': name,
+          'description': description,
+          'category': category,
+        }),
+      );
+
+      print('UPDATE COMMUNITY: Status = ${response.statusCode}');
+      print('UPDATE COMMUNITY: Response = ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final communityData = jsonData['data'] ?? jsonData;
+        return Community.fromJson(communityData);
+      } else {
+        print('UPDATE COMMUNITY: Error status ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error update community: $e');
+      return null;
+    }
+  }
+
+  // DELETE - Hapus community
+  static Future<bool> deleteCommunity(int communityId) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return false;
+
+      print('DELETE COMMUNITY: Deleting $baseUrl/communities/$communityId');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/communities/$communityId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('DELETE COMMUNITY: Status = ${response.statusCode}');
+      print('DELETE COMMUNITY: Response = ${response.body}');
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error delete community: $e');
       return false;
     }
   }
