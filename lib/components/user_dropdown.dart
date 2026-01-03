@@ -3,7 +3,7 @@ import '../user_pages/bookmark_page.dart';
 import '../user_pages/notification_page.dart';
 import '../user_pages/settings_page.dart';
 import '../user_pages/statistic_page.dart';
-import '../user_pages/login_page.dart';
+import '../pages/login_page.dart';
 import '../services/api_service.dart';
 
 class UserDropdownButton extends StatelessWidget {

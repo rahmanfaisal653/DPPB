@@ -4,12 +4,14 @@ class User {
   final String name;
   final String email;
   final String token;
+  final String role; // 'admin' atau 'user'
 
   User({
     required this.id,
     required this.name,
     required this.email,
     required this.token,
+    this.role = 'user',
   });
 
   // Fungsi untuk convert JSON dari API ke object User
@@ -44,11 +46,23 @@ class User {
       name: userData['name'] ?? '',
       email: userData['email'] ?? '',
       token: token,
+      role: userData['role'] ?? 'user',
     );
   }
 
   // Fungsi untuk convert object User ke JSON
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'email': email, 'token': token};
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'token': token,
+      'role': role,
+    };
+  }
+
+  // Helper function untuk cek apakah user adalah admin
+  bool isAdmin() {
+    return role == 'admin';
   }
 }

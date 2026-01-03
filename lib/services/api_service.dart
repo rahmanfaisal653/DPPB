@@ -368,4 +368,160 @@ class ApiService {
       return false;
     }
   }
+
+  // ========== USER MANAGEMENT FUNCTIONS ==========
+
+  // GET - Ambil semua users
+  static Future<List<User>> getAllUsers() async {
+    try {
+      String? token = await getToken();
+      if (token == null) {
+        print('GET ALL USERS: Token tidak ditemukan');
+        return [];
+      }
+
+      print('GET ALL USERS: Fetching from $baseUrl/admin/users');
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/users'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('GET ALL USERS: Status code = ${response.statusCode}');
+      print('GET ALL USERS: Response body = ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        // Handle paginated response dari Laravel
+        List<dynamic> usersData;
+        if (jsonData.containsKey('data')) {
+          if (jsonData['data'] is Map && jsonData['data'].containsKey('data')) {
+            usersData = jsonData['data']['data'];
+          } else if (jsonData['data'] is List) {
+            usersData = jsonData['data'];
+          } else {
+            usersData = [];
+          }
+        } else {
+          usersData = jsonData;
+        }
+
+        print('GET ALL USERS: Jumlah data = ${usersData.length}');
+
+        List<User> users = usersData.map((userData) {
+          return User(
+            id: userData['id'],
+            name: userData['name'] ?? '',
+            email: userData['email'] ?? '',
+            role: userData['role'] ?? 'user',
+            token: '',
+          );
+        }).toList();
+
+        print('GET ALL USERS: Berhasil parse ${users.length} users');
+        return users;
+      } else {
+        print('GET ALL USERS: Error status ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('GET ALL USERS Error: $e');
+      return [];
+    }
+  }
+
+  // POST - Create user baru
+  static Future<bool> createUser(
+    String name,
+    String email,
+    String password,
+    String role,
+  ) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return false;
+
+      print('CREATE USER: Posting to $baseUrl/admin/users');
+      final response = await http.post(
+        Uri.parse('$baseUrl/admin/users'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'name': name,
+          'email': email,
+          'password': password,
+          'role': role,
+        }),
+      );
+
+      print('CREATE USER: Status = ${response.statusCode}');
+      print('CREATE USER: Response = ${response.body}');
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print('Error create user: $e');
+      return false;
+    }
+  }
+
+  // PUT - Update user
+  static Future<bool> updateUser(
+    int userId,
+    String name,
+    String email,
+    String role,
+  ) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return false;
+
+      print('UPDATE USER: Putting to $baseUrl/admin/users/$userId');
+      final response = await http.put(
+        Uri.parse('$baseUrl/admin/users/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'name': name, 'email': email, 'role': role}),
+      );
+
+      print('UPDATE USER: Status = ${response.statusCode}');
+      print('UPDATE USER: Response = ${response.body}');
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error update user: $e');
+      return false;
+    }
+  }
+
+  // DELETE - Hapus user
+  static Future<bool> deleteUser(int userId) async {
+    try {
+      String? token = await getToken();
+      if (token == null) return false;
+
+      print('DELETE USER: Deleting $baseUrl/admin/users/$userId');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/admin/users/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('DELETE USER: Status = ${response.statusCode}');
+      print('DELETE USER: Response = ${response.body}');
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error delete user: $e');
+      return false;
+    }
+  }
 }

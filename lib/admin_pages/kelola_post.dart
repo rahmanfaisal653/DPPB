@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/post_model.dart';
-import 'login_page.dart';
 
-// Halaman Kelola Post dengan API
 class KelolaPostPage extends StatefulWidget {
-  final List<String> posts; // Masih terima props untuk backward compatibility
+  final List<String> posts;
 
   const KelolaPostPage({super.key, required this.posts});
 
@@ -14,200 +12,186 @@ class KelolaPostPage extends StatefulWidget {
 }
 
 class _KelolaPostPageState extends State<KelolaPostPage> {
-  List<Post> postList = [];
-  bool isLoading = false;
+  List<Post> daftarPost = [];
+  bool sedangLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Load posts dari API saat halaman dibuka
-    loadPosts();
+    muatDataPost();
   }
 
-  // Fungsi untuk load posts dari API
-  Future<void> loadPosts() async {
+  // Fungsi untuk muat data post dari API
+  void muatDataPost() async {
     setState(() {
-      isLoading = true;
+      sedangLoading = true;
     });
 
     List<Post> posts = await ApiService.getPosts();
 
     setState(() {
-      postList = posts;
-      isLoading = false;
+      daftarPost = posts;
+      sedangLoading = false;
     });
   }
 
   // Fungsi untuk tambah post baru
-  void showAddPostDialog() {
-    final titleController = TextEditingController();
-    final contentController = TextEditingController();
+  void tampilkanFormTambah() {
+    TextEditingController kontenController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Post Baru'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Judul',
-                border: OutlineInputBorder(),
-              ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Tambah Post Baru'),
+          content: TextField(
+            controller: kontenController,
+            decoration: InputDecoration(
+              labelText: 'Konten Post',
+              border: OutlineInputBorder(),
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: contentController,
-              decoration: const InputDecoration(
-                labelText: 'Konten',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            maxLines: 5,
           ),
-          TextButton(
-            onPressed: () async {
-              if (titleController.text.isNotEmpty &&
-                  contentController.text.isNotEmpty) {
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String konten = kontenController.text.trim();
+
+                if (konten.isEmpty) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Konten harus diisi')));
+                  return;
+                }
+
                 Navigator.pop(context);
 
-                // Panggil API create post
-                bool success = await ApiService.createPost(
-                  titleController.text,
-                  contentController.text,
-                );
+                bool berhasil = await ApiService.createPost(konten);
 
-                if (success) {
-                  // Reload posts
-                  loadPosts();
+                if (berhasil) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Post berhasil ditambahkan!')),
+                    SnackBar(content: Text('Post berhasil ditambahkan')),
                   );
+                  muatDataPost(); // Reload data
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Gagal menambahkan post')),
+                    SnackBar(content: Text('Gagal menambahkan post')),
                   );
                 }
-              }
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
+              },
+              child: Text('Simpan'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   // Fungsi untuk edit post
-  void showEditPostDialog(Post post) {
-    final titleController = TextEditingController(text: post.title);
-    final contentController = TextEditingController(text: post.content);
+  void tampilkanFormEdit(Post post) {
+    TextEditingController kontenController = TextEditingController(
+      text: post.content,
+    );
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Post'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Judul',
-                border: OutlineInputBorder(),
-              ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Post'),
+          content: TextField(
+            controller: kontenController,
+            decoration: InputDecoration(
+              labelText: 'Konten Post',
+              border: OutlineInputBorder(),
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: contentController,
-              decoration: const InputDecoration(
-                labelText: 'Konten',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            maxLines: 5,
           ),
-          TextButton(
-            onPressed: () async {
-              if (titleController.text.isNotEmpty &&
-                  contentController.text.isNotEmpty) {
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String konten = kontenController.text.trim();
+
+                if (konten.isEmpty) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Konten harus diisi')));
+                  return;
+                }
+
                 Navigator.pop(context);
 
-                // Panggil API update post
-                bool success = await ApiService.updatePost(
-                  post.id,
-                  titleController.text,
-                  contentController.text,
-                );
+                bool berhasil = await ApiService.updatePost(post.id, konten);
 
-                if (success) {
-                  // Reload posts
-                  loadPosts();
+                if (berhasil) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Post berhasil diupdate!')),
+                    SnackBar(content: Text('Post berhasil diupdate')),
                   );
+                  muatDataPost(); // Reload data
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Gagal mengupdate post')),
+                    SnackBar(content: Text('Gagal mengupdate post')),
                   );
                 }
-              }
-            },
-            child: const Text('Update'),
-          ),
-        ],
-      ),
+              },
+              child: Text('Update'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   // Fungsi untuk hapus post
-  void deletePost(Post post) async {
-    // Konfirmasi hapus
-    bool? confirm = await showDialog<bool>(
+  void hapusPost(Post post) async {
+    bool? yakin = await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Hapus'),
-        content: Text('Apakah Anda yakin ingin menghapus post "${post.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Hapus Post'),
+          content: Text('Yakin ingin menghapus post ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text('Hapus'),
+            ),
+          ],
+        );
+      },
     );
 
-    if (confirm == true) {
-      // Panggil API delete post
-      bool success = await ApiService.deletePost(post.id);
+    if (yakin == true) {
+      bool berhasil = await ApiService.deletePost(post.id);
 
-      if (success) {
-        // Reload posts
-        loadPosts();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post berhasil dihapus!')),
-        );
+      if (berhasil) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Post berhasil dihapus')));
+        muatDataPost(); // Reload data
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal menghapus post')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal menghapus post')));
       }
     }
   }
@@ -216,68 +200,59 @@ class _KelolaPostPageState extends State<KelolaPostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kelola Post"),
+        title: Text('Kelola Post'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        actions: [
-          // Button refresh
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: loadPosts,
-          ),
-        ],
       ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
+      body: sedangLoading
+          ? Center(child: CircularProgressIndicator())
+          : daftarPost.isEmpty
+          ? Center(
+              child: Text(
+                'Belum ada post',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
             )
-          : postList.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Belum ada post',
-                    style: TextStyle(fontSize: 16),
+          : ListView.builder(
+              padding: EdgeInsets.all(16),
+              itemCount: daftarPost.length,
+              itemBuilder: (context, index) {
+                Post post = daftarPost[index];
+
+                return Card(
+                  margin: EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    title: Text(
+                      post.content,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text('By: ${post.userName ?? "Unknown"}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            tampilkanFormEdit(post);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            hapusPost(post);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: postList.length,
-                  itemBuilder: (context, index) {
-                    Post post = postList[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      child: ListTile(
-                        title: Text(
-                          post.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          post.content,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Button Edit
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => showEditPostDialog(post),
-                            ),
-                            // Button Delete
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => deletePost(post),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: showAddPostDialog,
+        onPressed: tampilkanFormTambah,
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add),
       ),
     );
   }
