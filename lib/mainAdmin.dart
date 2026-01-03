@@ -4,9 +4,45 @@ import 'admin_pages/dashboard.dart';
 import 'admin_pages/kelola_user.dart';
 import 'admin_pages/kelola_post.dart';
 import 'admin_pages/kelola_community.dart';
+import 'admin_pages/login_page.dart';
+import 'services/api_service.dart';
 
 void main() {
-  runApp(const AdminApp());
+  runApp(const MyApp());
+}
+
+// Widget utama untuk cek login status
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: FutureBuilder<bool>(
+        // Cek apakah user sudah login
+        future: ApiService.isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Tampilkan loading saat cek login status
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          // Jika sudah login, tampilkan AdminApp
+          // Jika belum, tampilkan LoginPage
+          if (snapshot.data == true) {
+            return const AdminApp();
+          } else {
+            return const LoginPage();
+          }
+        },
+      ),
+    );
+  }
 }
 
 class AdminApp extends StatefulWidget {
@@ -43,11 +79,57 @@ class _AdminAppState extends State<AdminApp> {
     },
   ];
 
+  // Fungsi untuk logout
+  void handleLogout() async {
+    // Tampilkan dialog konfirmasi
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      // Panggil API logout
+      await ApiService.logout();
+
+      // Pindah ke halaman login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Admin Panel'),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          actions: [
+            // Button Logout
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Logout',
+              onPressed: handleLogout,
+            ),
+          ],
+        ),
         body: [
           // ==========================
           // DASHBOARD
