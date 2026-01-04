@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../models/community_model.dart';
 
-class CreateCommunityPage extends StatefulWidget {
-  const CreateCommunityPage({super.key});
+class EditCommunityPage extends StatefulWidget {
+  final Community community;
+
+  const EditCommunityPage({
+    super.key,
+    required this.community,
+  });
 
   @override
-  State<CreateCommunityPage> createState() => _CreateCommunityPageState();
+  State<EditCommunityPage> createState() => _EditCommunityPageState();
 }
 
-class _CreateCommunityPageState extends State<CreateCommunityPage> {
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _deskripsiController = TextEditingController();
+class _EditCommunityPageState extends State<EditCommunityPage> {
+  late TextEditingController _namaController;
+  late TextEditingController _deskripsiController;
   bool _isLoading = false;
   String? _errorMessage;
 
-  Future<void> _createCommunity() async {
+  @override
+  void initState() {
+    super.initState();
+    _namaController = TextEditingController(text: widget.community.name);
+    _deskripsiController = TextEditingController(text: widget.community.description ?? '');
+  }
+
+  Future<void> _updateCommunity() async {
     // Validate input
     if (_namaController.text.isEmpty || _deskripsiController.text.isEmpty) {
       setState(() {
@@ -29,7 +42,8 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
     });
 
     try {
-      final community = await ApiService.createCommunity(
+      final community = await ApiService.updateCommunity(
+        widget.community.id,
         _namaController.text,
         _deskripsiController.text,
         null,
@@ -39,7 +53,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('✓ Komunitas berhasil dibuat!'),
+              content: const Text('✓ Komunitas berhasil diperbarui!'),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
@@ -48,7 +62,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
         }
       } else {
         setState(() {
-          _errorMessage = 'Gagal membuat komunitas. Coba lagi.';
+          _errorMessage = 'Gagal memperbarui komunitas. Coba lagi.';
         });
       }
     } catch (e) {
@@ -75,7 +89,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buat Komunitas'),
+        title: const Text('Edit Komunitas'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -140,11 +154,11 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
               ),
             ),
             const SizedBox(height: 24),
-            // Create button
+            // Update button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _createCommunity,
+                onPressed: _isLoading ? null : _updateCommunity,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -155,7 +169,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Text(
-                        'Buat Komunitas',
+                        'Simpan Perubahan',
                         style: TextStyle(fontSize: 16),
                       ),
               ),

@@ -14,6 +14,7 @@ class CommunityPage extends StatefulWidget {
 
 class _CommunityPageState extends State<CommunityPage> {
   late Future<List<Community>> _communitiesFuture;
+  bool _isGridView = true;
 
   @override
   void initState() {
@@ -31,14 +32,36 @@ class _CommunityPageState extends State<CommunityPage> {
     });
   }
 
+  void _toggleView() {
+    setState(() {
+      _isGridView = !_isGridView;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isGridView ? '⊞ Grid View' : '☰ List View'),
+        duration: const Duration(milliseconds: 600),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Komunitas"),
         backgroundColor: Colors.blue,
-        actions: const [
-          UserDropdownButton(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshCommunities,
+            tooltip: 'Refresh',
+          ),
+          IconButton(
+            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
+            onPressed: _toggleView,
+            tooltip: _isGridView ? 'List View' : 'Grid View',
+          ),
+          const UserDropdownButton(),
         ],
       ),
       body: FutureBuilder<List<Community>>(
@@ -97,41 +120,9 @@ class _CommunityPageState extends State<CommunityPage> {
               _refreshCommunities();
               await _communitiesFuture;
             },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: communities.length,
-              itemBuilder: (context, index) {
-                final community = communities[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    title: Text(
-                      community.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      community.description ?? 'Tidak ada deskripsi',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Text(
-                      '${community.memberCount ?? 0} org',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CommunityDetailPage(
-                            communityId: community.id,
-                          ),
-                        ),
-                      ).then((_) => _refreshCommunities());
-                    },
-                  ),
-                );
-              },
-            ),
+            child: _isGridView
+                ? _buildGridView(communities)
+                : _buildListView(communities),
           );
         },
       ),
@@ -150,6 +141,158 @@ class _CommunityPageState extends State<CommunityPage> {
           }
         },
       ),
+    );
+  }
+
+  Widget _buildListView(List<Community> communities) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: communities.length,
+      itemBuilder: (context, index) {
+        final community = communities[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blue.shade100,
+              child: Text(community.name[0].toUpperCase()),
+            ),
+            title: Text(
+              community.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              community.description ?? 'Tidak ada deskripsi',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Text(
+              '${community.memberCount ?? 0}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CommunityDetailPage(
+                    communityId: community.id,
+                  ),
+                ),
+              ).then((_) => _refreshCommunities());
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGridView(List<Community> communities) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(12),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.85,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: communities.length,
+      itemBuilder: (context, index) {
+        final community = communities[index];
+        return Card(
+          elevation: 2,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CommunityDetailPage(
+                    communityId: community.id,
+                  ),
+                ),
+              ).then((_) => _refreshCommunities());
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade100,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      community.name[0].toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              community.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              community.description ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.group, size: 14, color: Colors.blue),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${community.memberCount ?? 0}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
